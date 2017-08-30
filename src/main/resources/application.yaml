@@ -1,0 +1,34 @@
+spring :
+  application:
+    name: eureka-server
+
+swagger :
+  title : 'eureka-server'
+  version : '1.0'
+  license : 'Wang Zi Qing
+  '
+---
+spring:
+  profiles: peer1
+server:
+  port: 8761
+eureka:
+  instance:
+    hostname: peer1
+    status-page-url: http://localhost:${server.port}/swagger-ui.html
+  client:
+    serviceUrl:
+      defaultZone: http://peer2:8762/eureka/
+
+---
+spring:
+  profiles: peer2
+server:
+  port: 8762
+eureka:
+  instance:
+    hostname: peer2
+    status-page-url: http://localhost:${server.port}/swagger-ui.html
+  client:
+    serviceUrl:
+      defaultZone: http://peer1:8761/eureka/
