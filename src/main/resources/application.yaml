@@ -2,17 +2,18 @@ spring :
   application:
     name: eureka-server
 
+
 swagger :
   title : 'eureka-server'
   version : '1.0'
-  license : 'Wang Zi Qing
+  license : 'Wang Zi Qing'
 
-security:
-  basic:
-    enabled: true
-  user:
-    name: admin
-    password: 111111
+#security:
+#  basic:
+#    enabled: true
+#  user:
+#    name: admin
+#    password: 111111
 ---
 spring:
   profiles: peer1
@@ -24,7 +25,9 @@ eureka:
     status-page-url: http://localhost:${server.port}/swagger-ui.html
   client:
     serviceUrl:
-      defaultZone: http://peer2:8762/eureka/
+      defaultZosane: http://peer1:8762/eureka/
+    fetch-registry: false
+    register-with-eureka: false
 
 ---
 spring:
