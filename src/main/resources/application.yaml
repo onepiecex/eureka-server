@@ -6,7 +6,13 @@ swagger :
   title : 'eureka-server'
   version : '1.0'
   license : 'Wang Zi Qing
-  '
+
+security:
+  basic:
+    enabled: true
+  user:
+    name: admin
+    password: 111111
 ---
 spring:
   profiles: peer1
