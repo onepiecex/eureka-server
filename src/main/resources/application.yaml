@@ -2,7 +2,6 @@ spring :
   application:
     name: eureka-server
 
-
 swagger :
   title : 'eureka-server'
   version : '1.0'

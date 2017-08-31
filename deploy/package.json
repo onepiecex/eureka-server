@@ -1,0 +1,15 @@
+{
+  "name": "pubjar",
+  "version": "1.0.1",
+  "description": "jar包自动化发布",
+  "main": "deploy.js",
+  "author": "wangziqing",
+  "license": "ISC",
+  "devDependencies": {
+    "colors": "^1.1.2",
+    "q": "^1.5.0",
+    "shelljs": "^0.7.7",
+    "ssh2": "^0.5.4",
+    "yargs": "^8.0.1"
+  }
+}

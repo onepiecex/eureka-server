@@ -12,4 +12,8 @@ JVM_OPTS="${JVM_OPTS} -Dsun.net.client.defaultReadTimeout=30000"
 JVM_OPTS="${JVM_OPTS} -server -Xms256m -Xmx256m -XX:NewSize=32m"
 JVM_OPTS="${JVM_OPTS} -Dspring.profiles.active=peer1"
 
+JVM_OPTS="${JVM_OPTS} -Dserver.port=8761"
+
+
+
 $JAVA_HOME/bin/java ${JVM_OPTS} -jar /app.jar >>/stdout.log 2>>/stderr.log
