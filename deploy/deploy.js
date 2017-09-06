@@ -132,7 +132,7 @@ module.exports = function(config) {
         }).then(function(result) {
             return conn.sh(`docker build -t ${appName}:${cg.version} ${deployPath}`);
         }).then(function(result) {
-            return conn.sh(`docker run -d -p ${cg.dockerPort} ${appName}:${cg.version}`);
+            return conn.sh(`docker run -e "RUNMODE=${argv.runmode}" -d -p ${cg.dockerPort} ${appName}:${cg.version}`);
         }).then(function(result) {
             console.log('deploy success!!'.bold)
             process.exit(-1);
