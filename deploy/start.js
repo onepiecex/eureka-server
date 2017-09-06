@@ -1,18 +1,19 @@
 #!/usr/bin/env node
 'use strict';
 
-var pubjar= require('pubjar')
+var pubjar = require('./deploy')
 pubjar({
-    gitAddress: 'git@git.chongkouwei.com:wangziqing/DA-parent.git',
-    sourcePath: '/Users/wangziqing/onepiecex/eureka-server',
+    gitAddress: 'https://github.com/onepiecex/eureka-server.git',
+    sourcePath: '/Users/wangziqing/onepiecex',
     remotePath: '/root',
-    test: [{
-        name: 'vertx-web',
-        host: '123.123.123.123',
+    test: {
+        host: '120.76.84.114',
         username: 'root',
         password: '7c3cD505',
-        mvn: 'mvn clean install -Pprod -Dmaven.test.skip=true'
-    }]
+        version: '1.0',
+        dockerPort : '80:8761',
+        mvn: 'mvn clean install -Dmaven.test.skip=true'
+    }
 })
 
 

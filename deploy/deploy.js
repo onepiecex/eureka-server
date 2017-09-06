@@ -2,7 +2,7 @@
 'use strict';
 require('shelljs/global');
 require('colors');
-var argv = require('yargs').demand(['module', 'branch']).argv,
+var argv = require('yargs').demand(['runmode','branch']).argv,
     Client = require('ssh2').Client,
     Q = require('q');
 
@@ -36,74 +36,72 @@ Client.prototype.put = function(local, remote) {
     return defer.promise;
 }
 
-function getModule(config, module) {
+function getConfig(config, runmode,module) {
     if (module) {
-        var splits = module.split(':');
-        if(splits.length!=2){
-            console.error('error : --module格式不正确');
-            process.exit(-1);
-        }
-        var mode = splits[0];
-        var moduleName = splits[1];
-        var modules = config[mode];
-
+        var modules = config[runmode];
         if (modules) {
             for (var m of modules) {
-                if (m.name === moduleName) {
+                if (m.name === module) {
                     return m;
                 }
             }
         }
+    }else{
+        return config[runmode];
     }
 }
 
 module.exports = function(config) {
-    var module = getModule(config, argv.module);
-    if (!module) {
-        console.log(`error : module : ${argv.module} 不存在`)
-        process.exit(-1);
-    }
+    var cg = getConfig(config,argv.runmode, argv.module);
+
     var application = config.gitAddress.substring(config.gitAddress.lastIndexOf("/") + 1, config.gitAddress.length - 4);
-    cd(`${config.sourcePath}`)
+
+    var sourcePath = config.sourcePath;
+
+    cd(`${sourcePath}`)
     if (!test('-d', application)) {
         exec(`git clone ${config.gitAddress}`);
     }
     cd(`${application}`);
+
+    sourcePath += "/" + application;
+
     console.log('git pull...'.bold);
 
     exec('git pull');
     exec(`git checkout ${argv.branch}`);
-    cd(module.name);
-    console.log(`${module.mvn}`.bold);
-    exec(`${module.mvn}`);
+
+    console.log(`${cg.mvn}`.bold);
+    exec(`${cg.mvn}`);
     console.log('mvn finished'.bold);
 
+    var appName = argv.module? argv.module : application;
 
     var conn = new Client();
     conn.on('ready', function() {
-        var dname = `${module.name}-deploy.tar.gz`;
-        var jar, deployPath = `${config.pubPath}/pubjar/deploy/${module.name}`;
+        var dname = `${appName}-deploy.tar.gz`;
+        var jar, deployPath = `${config.remotePath}/pubjar/deploy/eureka-server`;
 
-        conn.sh(`find ${config.pubPath} -maxdepth 1 -name pubjar -type d -print`)
+        conn.sh(`find ${config.remotePath} -maxdepth 1 -name pubjar -type d -print`)
             .then(function(result) {
                 if (!result) {
-                    return conn.sh(`mkdir ${config.pubPath}/pubjar`);
+                    return conn.sh(`mkdir ${config.remotePath}/pubjar`);
                 } else {
                     return;
                 }
             })
             .then(function(result) {
-                return conn.sh(`find ${config.pubPath}/pubjar -maxdepth 1 -name deploy -type d -print`)
+                return conn.sh(`find ${config.remotePath}/pubjar -maxdepth 1 -name deploy -type d -print`)
             })
             .then(function(result) {
                 if (!result) {
-                    return conn.sh(`mkdir ${config.pubPath}/pubjar/deploy`);
+                    return conn.sh(`mkdir ${config.remotePath}/pubjar/deploy`);
                 } else {
                     return;
                 }
             })
             .then(function(result) {
-                return conn.sh(`find ${config.pubPath}/pubjar/deploy -maxdepth 1 -name ${module.name} -type d -print`)
+                return conn.sh(`find ${config.remotePath}/pubjar/deploy -maxdepth 1 -name eureka-server -type d -print`)
             })
             .then(function(result) {
                 if (!result) {
@@ -113,10 +111,10 @@ module.exports = function(config) {
                 }
             })
             .then(function(result) {
-                console.log(`put ${config.sourcePath}/${application}/${module.name}/target/${dname} to ${deployPath}/${dname}`.bold);
+                console.log(`put ${sourcePath}/target/${dname} to ${deployPath}/${dname}`.bold);
                 console.log('......'.bold);
                 return conn.put(
-                    `${config.sourcePath}/${application}/${module.name}/target/${dname}`,
+                    `${sourcePath}/target/${dname}`,
                     `${deployPath}/${dname}`);
             })
             .then(function(result) {
@@ -125,8 +123,19 @@ module.exports = function(config) {
             }).then(function(result) {
             return conn.sh(`ls ${deployPath}/lib/*.jar`);
         }).then(function(result) {
-            console.log(result)
-
+            return conn.sh(`docker ps|grep ${appName}:${cg.version} |awk '{print $1}'`);
+        }).then(function(result) {
+            if(!result){
+                return;
+            }
+           return conn.sh(`docker kill ${result}`)
+        }).then(function(result) {
+            return conn.sh(`docker build -t ${appName}:${cg.version} ${deployPath}`);
+        }).then(function(result) {
+            return conn.sh(`docker run -d -p ${cg.dockerPort} ${appName}:${cg.version}`);
+        }).then(function(result) {
+            console.log('deploy success!!'.bold)
+            process.exit(-1);
         })
-    }).connect(module);
+    }).connect(cg);
 }
