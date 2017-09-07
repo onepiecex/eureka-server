@@ -25,9 +25,9 @@ fi
 
 if [[ "$RUN_MODE" =~ "prod" ]] ; then
     # jdk8 已经不需要 -XX:PermSize=128m 参数
-    JVM_OPTS="${JVM_OPTS} -server -Xms256m -Xmx256m -XX:NewSize=64m"
+    JVM_OPTS="${JVM_OPTS} -server -Xms512m -Xmx512m -XX:NewSize=128m"
 elif [[ "$RUN_MODE" =~ "test" ]] ; then
-    JVM_OPTS="${JVM_OPTS} -server -Xms128m -Xmx128m -XX:NewSize=32m"
+    JVM_OPTS="${JVM_OPTS} -server -Xms256m -Xmx256m -XX:NewSize=64m"
     JVM_OPTS="${JVM_OPTS} -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8563"
 else
     JVM_OPTS="${JVM_OPTS} -server -Xms156m -Xmx156m -XX:NewSize=41m"
