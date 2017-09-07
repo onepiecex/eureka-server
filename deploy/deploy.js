@@ -82,6 +82,13 @@ module.exports = function(config) {
         var dname = `${appName}-deploy.tar.gz`;
         var jar, deployPath = `${config.remotePath}/pubjar/deploy/eureka-server`;
 
+        var dockerName = `${appName}-${argv.runmode}:${cg.version}`;
+        if(argv.active){
+            dockerName = `${appName}-${argv.runmode}-${argv.active}:${cg.version}`;
+        }else{
+            argv.active = argv.runmode;
+        }
+
         conn.sh(`find ${config.remotePath} -maxdepth 1 -name pubjar -type d -print`)
             .then(function(result) {
                 if (!result) {
@@ -123,16 +130,22 @@ module.exports = function(config) {
             }).then(function(result) {
             return conn.sh(`ls ${deployPath}/lib/*.jar`);
         }).then(function(result) {
-            return conn.sh(`docker ps|grep ${appName}:${cg.version} |awk '{print $1}'`);
+
+
+            return conn.sh(`docker ps|grep ${dockerName} |awk '{print $1}'`);
         }).then(function(result) {
             if(!result){
                 return;
             }
-           return conn.sh(`docker kill ${result}`)
+            return conn.sh(`docker kill ${result}`)
         }).then(function(result) {
-            return conn.sh(`docker build -t ${appName}:${cg.version} ${deployPath}`);
+            return conn.sh(`docker build -t ${dockerName} ${deployPath}`);
         }).then(function(result) {
-            return conn.sh(`docker run -e "RUNMODE=${argv.runmode}" -d -p ${cg.dockerPort} ${appName}:${cg.version}`);
+            var env = "";
+            if(argv.active){
+                env = `-e ACTIVE=${argv.active}`;
+            }
+            return conn.sh(`docker run -e RUNMODE=${argv.runmode} ${env} -d ${cg.docker_p} ${dockerName}`);
         }).then(function(result) {
             console.log('deploy success!!'.bold)
             process.exit(-1);

@@ -11,21 +11,24 @@ JVM_OPTS="${JVM_OPTS} -Dsun.net.client.defaultConnectTimeout=10000"
 JVM_OPTS="${JVM_OPTS} -Dsun.net.client.defaultReadTimeout=30000"
 #JVM_OPTS="${JVM_OPTS} -Dspring.profiles.active=peer1"
 
-JVM_OPTS="${JVM_OPTS} -Dserver.port=8761"
-
+#JVM_OPTS="${JVM_OPTS} -Dserver.port=8761"
 
 if [ "$1" != "" ]; then
     RUN_MODE=$1
 fi
 
+if [ "$2" != "" ]; then
+     JVM_OPTS="${JVM_OPTS} -Dspring.profiles.active=$2"
+fi
+
+
+
 if [ "$RUN_MODE" == "prod" ] ; then
     # jdk8 已经不需要 -XX:PermSize=128m 参数
     JVM_OPTS="${JVM_OPTS} -server -Xms256m -Xmx256m -XX:NewSize=64m"
-    JVM_OPTS="${JVM_OPTS} -Dspring.profiles.active=peer1"
 elif [ "$RUN_MODE" == "test" ] ; then
     JVM_OPTS="${JVM_OPTS} -server -Xms128m -Xmx128m -XX:NewSize=32m"
     JVM_OPTS="${JVM_OPTS} -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8563"
-    JVM_OPTS="${JVM_OPTS} -Dspring.profiles.active=peer1"
 else
     JVM_OPTS="${JVM_OPTS} -server -Xms156m -Xmx156m -XX:NewSize=41m"
  fi
