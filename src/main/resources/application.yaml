@@ -24,7 +24,7 @@ eureka:
     status-page-url: http://localhost:${server.port}/swagger-ui.html
   client:
     serviceUrl:
-      defaultZosane: http://peer1:8762/eureka/
+      defaultZosane: http://10.172.40.168:8762/eureka/
     fetch-registry: false
     register-with-eureka: false
 
@@ -39,4 +39,4 @@ eureka:
     status-page-url: http://localhost:${server.port}/swagger-ui.html
   client:
     serviceUrl:
-      defaultZone: http://peer1:8761/eureka/
+      defaultZone: http://10.172.40.168:8761/eureka/
