@@ -21,10 +21,10 @@ server:
 eureka:
   instance:
     hostname: peer1
-    status-page-url: http://localhost:${server.port}/swagger-ui.html
+    status-page-url: http://120.76.84.114:${server.port}/swagger-ui.html
   client:
     serviceUrl:
-      defaultZosane: http://10.172.40.168:8762/eureka/
+      defaultZosane: http://120.76.84.114:8762/eureka/
     fetch-registry: false
     register-with-eureka: false
 
@@ -36,7 +36,7 @@ server:
 eureka:
   instance:
     hostname: peer2
-    status-page-url: http://localhost:${server.port}/swagger-ui.html
+    status-page-url: http://120.76.84.114:${server.port}/swagger-ui.html
   client:
     serviceUrl:
-      defaultZone: http://10.172.40.168:8761/eureka/
+      defaultZone: http://120.76.84.114:8761/eureka/
